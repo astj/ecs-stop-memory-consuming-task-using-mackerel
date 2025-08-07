@@ -37,7 +37,6 @@ func main() {
 func parseFlags() *Config {
 	config := &Config{}
 
-	// コマンドラインフラグの定義
 	flag.BoolVar(&config.DryRun, "dry-run", false, "Dry run mode (no actual task termination)")
 	flag.StringVar(&config.MackerelService, "mackerel-service", "", "Mackerel service name")
 	flag.StringVar(&config.MackerelRole, "mackerel-role", "", "Mackerel role name")
@@ -49,7 +48,6 @@ func parseFlags() *Config {
 
 	flag.Parse()
 
-	// 環境変数からの設定（コマンドラインオプションが優先）
 	if config.DryRun == false {
 		if os.Getenv("DRY_RUN") == "true" {
 			config.DryRun = true
@@ -80,7 +78,6 @@ func parseFlags() *Config {
 		config.MackerelAPIKey = os.Getenv("MACKEREL_APIKEY")
 	}
 
-	// 必須パラメータのバリデーション
 	if config.MackerelService == "" {
 		fmt.Fprintf(os.Stderr, "Error: Mackerel service is required\n")
 		flag.Usage()
@@ -106,11 +103,4 @@ func parseFlags() *Config {
 	}
 
 	return config
-}
-
-func maskAPIKey(apiKey string) string {
-	if len(apiKey) <= 8 {
-		return "***"
-	}
-	return apiKey[:4] + "****" + apiKey[len(apiKey)-4:]
 }
