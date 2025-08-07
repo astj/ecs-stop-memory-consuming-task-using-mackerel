@@ -57,7 +57,7 @@ func parseFlags() *Config {
 	flag.BoolVar(&config.DryRun, "dry-run", false, "Dry run mode (no actual task termination)")
 	flag.StringVar(&config.MackerelService, "mackerel-service", "", "Mackerel service name")
 	flag.StringVar(&config.MackerelRole, "mackerel-role", "", "Mackerel role name")
-	flag.StringVar(&config.MackerelMetric, "mackerel-metric", "", "Mackerel metric name for memory consumption")
+	flag.StringVar(&config.MackerelMetric, "mackerel-metric", "", "Mackerel metric name for memory consumption like `container.memory.${target container name}.usage`")
 	flag.StringVar(&config.MackerelAPIKey, "mackerel-api-key", "", "Mackerel API key")
 	flag.BoolVar(&config.Verbose, "verbose", false, "Enable verbose output")
 
