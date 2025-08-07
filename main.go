@@ -22,10 +22,10 @@ type Config struct {
 func main() {
 	config := parseFlags()
 
-	client := mackerel.NewClient(config.MackerelAPIKey)
-	client.Verbose = config.Verbose
+	mackerelClient := mackerel.NewClient(config.MackerelAPIKey)
+	mackerelClient.Verbose = config.Verbose
 
-	arn, err := FindMostMemoryConsumingTaskArn(client, config.MackerelService, config.MackerelRole, config.MackerelMetric)
+	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, config.MackerelService, config.MackerelRole, config.MackerelMetric)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error finding most memory consuming task: %v\n", err)
 		os.Exit(1)
