@@ -39,14 +39,12 @@ func FindMostMemoryConsumingTaskArn(client *mackerel.Client, service string, rol
 	largestValue := math.NaN()
 	for hostId, metrics := range values {
 		for _, metric := range metrics {
-			if metric.Name == metricName {
-				// metric.Value が interface なので、 float として取り出す
-				if value, ok := metric.Value.(float64); ok {
-					// メトリックの値をチェックして、最もメモリ使用量が多いタスクを特定
-					if math.IsNaN(largestValue) || value > largestValue {
-						largestValue = value
-						largestValueHostId = hostId
-					}
+			// metric.Value が interface なので、 float として取り出す
+			if value, ok := metric.Value.(float64); ok {
+				// メトリックの値をチェックして、最もメモリ使用量が多いタスクを特定
+				if math.IsNaN(largestValue) || value > largestValue {
+					largestValue = value
+					largestValueHostId = hostId
 				}
 			}
 		}
