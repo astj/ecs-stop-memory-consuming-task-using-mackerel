@@ -19,6 +19,30 @@ The primary use case is for ECS Services that gradually accumulate memory usage 
 Download the latest release from the [releases page](https://github.com/astj/ecs-stop-memory-consuming-task-using-mackerel/releases).
 -->
 
+### Using Docker
+
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/astj/ecs-stop-memory-consuming-task-using-mackerel).
+
+Pull the pre-built Docker image:
+
+```bash
+docker pull astj/ecs-stop-memory-consuming-task-using-mackerel:latest
+```
+
+Run with Docker:
+
+```bash
+docker run --rm \
+  -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
+  -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+  -e AWS_REGION="${AWS_REGION}" \
+  -e MACKEREL_SERVICE="your-service" \
+  -e MACKEREL_ROLE="your-role" \
+  -e MACKEREL_METRIC="container.memory.app.usage" \
+  -e MACKEREL_APIKEY="${MACKEREL_APIKEY}" \
+  astj/ecs-stop-memory-consuming-task-using-mackerel:latest
+```
+
 ### Build from Source
 
 ```bash
