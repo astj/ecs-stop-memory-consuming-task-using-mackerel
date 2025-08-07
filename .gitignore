@@ -30,4 +30,4 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
-/ecs-stop-memory-consuming-task-scheduler
+/ecs-stop-memory-consuming-task-using-mackerel

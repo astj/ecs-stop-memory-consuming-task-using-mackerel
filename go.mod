@@ -1,4 +1,4 @@
-module github.com/astj/ecs-stop-memory-consuming-task-scheduler
+module github.com/astj/ecs-stop-memory-consuming-task-using-mackerel
 
 go 1.24.4
 
