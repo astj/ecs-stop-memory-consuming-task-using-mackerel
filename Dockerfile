@@ -4,9 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN go build -o /app/ecs-stop-memory-consuming-task-using-mackerel .
+RUN CGO_ENABLED=0 go build -o /app/ecs-stop-memory-consuming-task-using-mackerel .
 
-FROM debian:bookworm-slim
+FROM gcr.io/distroless/static-debian12
 COPY --from=builder /app/ecs-stop-memory-consuming-task-using-mackerel /bin/ecs-stop-memory-consuming-task-using-mackerel
 
 ENTRYPOINT ["/bin/ecs-stop-memory-consuming-task-using-mackerel"]
