@@ -6,32 +6,42 @@ import (
 	"github.com/mackerelio/mackerel-client-go"
 )
 
-func FindMostMemoryConsumingTaskArn(client *mackerel.Client, service string, role string, metricName string) (string, error) {
+type Task struct {
+	TaskArn    string
+	ClusterArn string
+}
+
+func FindMostMemoryConsumingTask(client *mackerel.Client, service string, role string, metricName string) (*Task, error) {
 	hosts, err := client.FindHosts(&mackerel.FindHostsParam{
 		Service: service,
 		Roles:   []string{role},
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if len(hosts) == 0 {
-		return "", nil
+		return nil, nil
 	}
 
 	hostIds := make([]string, len(hosts))
 	taskArnByHostId := make(map[string]string, len(hosts))
+	clusterArnByHostId := make(map[string]string, len(hosts))
 	for i, host := range hosts {
 		hostIds[i] = host.ID
+		// mackerel-container-agent records task ARN and cluster ARN in host metadata
 		if meta, ok := host.Meta.Cloud.MetaData.(map[string]interface{}); ok {
 			if arn, ok := meta["task_arn"].(string); ok {
 				taskArnByHostId[host.ID] = arn
+			}
+			if arn, ok := meta["cluster"].(string); ok {
+				clusterArnByHostId[host.ID] = arn
 			}
 		}
 	}
 
 	values, err := client.FetchLatestMetricValues(hostIds, []string{metricName})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	largestValueHostId := ""
@@ -47,5 +57,8 @@ func FindMostMemoryConsumingTaskArn(client *mackerel.Client, service string, rol
 		}
 	}
 
-	return taskArnByHostId[largestValueHostId], nil
+	return &Task{
+		TaskArn:    taskArnByHostId[largestValueHostId],
+		ClusterArn: clusterArnByHostId[largestValueHostId],
+	}, nil
 }

@@ -33,19 +33,20 @@ func main() {
 	}
 	ecsClient := ecs.NewFromConfig(awsConfig)
 
-	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
+	task, err := FindMostMemoryConsumingTask(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
 	if err != nil {
 		log.Fatalf("Error finding most memory consuming task: %v", err)
 	}
 
-	if arn == "" {
+	if task == nil {
 		log.Println("No memory consuming task found")
 		os.Exit(0)
 	}
 
-	log.Println("Most memory consuming task ARN:", arn)
+	log.Println("Most memory consuming task ARN:", task.TaskArn)
+	log.Println("Most memory consuming task Cluster ARN:", task.ClusterArn)
 
-	if err := StopEcsTask(ecsClient, arn, c.DryRun); err != nil {
+	if err := StopEcsTask(ecsClient, task, c.DryRun); err != nil {
 		log.Fatalf("Error stopping task: %v", err)
 	}
 	log.Println("Task stopped successfully")
