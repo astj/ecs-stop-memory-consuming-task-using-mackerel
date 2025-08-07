@@ -83,7 +83,7 @@ func parseFlags() *Config {
 	}
 
 	if config.MackerelAPIKey == "" {
-		config.MackerelAPIKey = os.Getenv("MACKEREL_API_KEY")
+		config.MackerelAPIKey = os.Getenv("MACKEREL_APIKEY")
 	}
 
 	// 必須パラメータのバリデーション

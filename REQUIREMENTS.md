@@ -21,7 +21,7 @@
 - mackerel 上のメトリック名
 - AWS の Profile, Region
 - Mackerel の API キー
-    - この環境変数名は、 conventional として `MACKEREL_API_KEY` とします
+    - この環境変数名は、 conventional として `MACKEREL_APIKEY` とします
 
 ## 技術選定基準
 
