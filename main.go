@@ -34,7 +34,6 @@ func main() {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
 	ecsClient := ecs.NewFromConfig(awsConfig)
-	var _ = ecsClient // avoid compile error
 
 	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
 	if err != nil {
