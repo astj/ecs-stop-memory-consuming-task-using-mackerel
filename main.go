@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/mackerelio/mackerel-client-go"
 )
 
@@ -20,12 +24,20 @@ type Config struct {
 }
 
 func main() {
-	config := parseFlags()
+	ctx := context.Background()
+	c := parseFlags()
 
-	mackerelClient := mackerel.NewClient(config.MackerelAPIKey)
-	mackerelClient.Verbose = config.Verbose
+	mackerelClient := mackerel.NewClient(c.MackerelAPIKey)
+	mackerelClient.Verbose = c.Verbose
 
-	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, config.MackerelService, config.MackerelRole, config.MackerelMetric)
+	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithRegion(c.AWSRegion))
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+	ecsClient := ecs.NewFromConfig(awsConfig)
+	var _ = ecsClient // avoid compile error
+
+	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error finding most memory consuming task: %v\n", err)
 		os.Exit(1)
