@@ -22,15 +22,6 @@ type Config struct {
 func main() {
 	config := parseFlags()
 
-	fmt.Printf("Configuration:\n")
-	fmt.Printf("  DryRun: %t\n", config.DryRun)
-	fmt.Printf("  Mackerel Service: %s\n", config.MackerelService)
-	fmt.Printf("  Mackerel Role: %s\n", config.MackerelRole)
-	fmt.Printf("  Mackerel Metric: %s\n", config.MackerelMetric)
-	fmt.Printf("  AWS Profile: %s\n", config.AWSProfile)
-	fmt.Printf("  AWS Region: %s\n", config.AWSRegion)
-	fmt.Printf("  Mackerel API Key: %s\n", maskAPIKey(config.MackerelAPIKey))
-
 	client := mackerel.NewClient(config.MackerelAPIKey)
 	client.Verbose = config.Verbose
 
