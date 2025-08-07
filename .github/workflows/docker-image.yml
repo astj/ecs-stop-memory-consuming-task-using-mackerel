@@ -25,6 +25,7 @@ jobs:
           images: astj/ecs-stop-memory-consuming-task-using-mackerel
           tags: |
             type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
