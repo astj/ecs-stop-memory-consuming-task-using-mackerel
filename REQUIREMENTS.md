@@ -37,12 +37,13 @@
 - main.go にコマンドラインパラメータと環境変数の両方から設定を読み込む機能を実装
 - 実装したパラメータ:
   - `dry-run` / `DRY_RUN`: ドライランモード
+  - `mackerel-service` / `MACKEREL_SERVICE`: Mackerel上のサービス名
   - `mackerel-role` / `MACKEREL_ROLE`: Mackerel上のロール名
   - `mackerel-metric` / `MACKEREL_METRIC`: メモリ消費量に対応するメトリック名
   - `aws-profile` / `AWS_PROFILE`: AWSプロファイル名
   - `aws-region` / `AWS_REGION`: AWSリージョン
   - `mackerel-api-key` / `MACKEREL_API_KEY`: Mackerel APIキー
 - コマンドラインオプションが環境変数より優先される仕様
-- 必須パラメータのバリデーション機能を追加
+- 必須パラメータのバリデーション機能を追加（mackerel-service, mackerel-role, mackerel-metric, mackerel-api-key, aws-region）
 - APIキーのマスク表示機能を実装（セキュリティ考慮）
 - 標準ライブラリの `flag` パッケージを使用（技術選定基準に準拠）

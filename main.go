@@ -9,12 +9,13 @@ import (
 )
 
 type Config struct {
-	DryRun         bool
-	MackerelRole   string
-	MackerelMetric string
-	AWSProfile     string
-	AWSRegion      string
-	MackerelAPIKey string
+	DryRun          bool
+	MackerelService string
+	MackerelRole    string
+	MackerelMetric  string
+	AWSProfile      string
+	AWSRegion       string
+	MackerelAPIKey  string
 }
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 
 	fmt.Printf("Configuration:\n")
 	fmt.Printf("  DryRun: %t\n", config.DryRun)
+	fmt.Printf("  Mackerel Service: %s\n", config.MackerelService)
 	fmt.Printf("  Mackerel Role: %s\n", config.MackerelRole)
 	fmt.Printf("  Mackerel Metric: %s\n", config.MackerelMetric)
 	fmt.Printf("  AWS Profile: %s\n", config.AWSProfile)
@@ -37,6 +39,7 @@ func parseFlags() *Config {
 
 	// コマンドラインフラグの定義
 	flag.BoolVar(&config.DryRun, "dry-run", false, "Dry run mode (no actual task termination)")
+	flag.StringVar(&config.MackerelService, "mackerel-service", "", "Mackerel service name")
 	flag.StringVar(&config.MackerelRole, "mackerel-role", "", "Mackerel role name")
 	flag.StringVar(&config.MackerelMetric, "mackerel-metric", "", "Mackerel metric name for memory consumption")
 	flag.StringVar(&config.AWSProfile, "aws-profile", "", "AWS profile name")
@@ -50,6 +53,10 @@ func parseFlags() *Config {
 		if os.Getenv("DRY_RUN") == "true" {
 			config.DryRun = true
 		}
+	}
+
+	if config.MackerelService == "" {
+		config.MackerelService = os.Getenv("MACKEREL_SERVICE")
 	}
 
 	if config.MackerelRole == "" {
@@ -73,6 +80,12 @@ func parseFlags() *Config {
 	}
 
 	// 必須パラメータのバリデーション
+	if config.MackerelService == "" {
+		fmt.Fprintf(os.Stderr, "Error: Mackerel service is required\n")
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	if config.MackerelRole == "" {
 		fmt.Fprintf(os.Stderr, "Error: Mackerel role is required\n")
 		flag.Usage()
