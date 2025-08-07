@@ -43,7 +43,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	if arn == "" {
+		fmt.Println("No memory consuming task found")
+		os.Exit(0)
+	}
+
 	fmt.Println("Most memory consuming task ARN:", arn)
+
+	if err := StopEcsTask(ecsClient, arn, c.DryRun); err != nil {
+		fmt.Fprintf(os.Stderr, "Error stopping task: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Task stopped successfully")
 }
 
 func parseFlags() *Config {
