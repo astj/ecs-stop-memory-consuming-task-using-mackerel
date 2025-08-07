@@ -31,7 +31,14 @@ func main() {
 	fmt.Printf("  Mackerel API Key: %s\n", maskAPIKey(config.MackerelAPIKey))
 
 	client := mackerel.NewClient(config.MackerelAPIKey)
-	var _ = client // avoid compile error
+
+	arn, err := FindMostMemoryConsumingTaskArn(client, config.MackerelService, config.MackerelRole, config.MackerelMetric)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error finding most memory consuming task: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Most memory consuming task ARN:", arn)
 }
 
 func parseFlags() *Config {
