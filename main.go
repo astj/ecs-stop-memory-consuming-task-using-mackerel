@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/mackerelio/mackerel-client-go"
 )
 
 type Config struct {
@@ -25,6 +27,9 @@ func main() {
 	fmt.Printf("  AWS Profile: %s\n", config.AWSProfile)
 	fmt.Printf("  AWS Region: %s\n", config.AWSRegion)
 	fmt.Printf("  Mackerel API Key: %s\n", maskAPIKey(config.MackerelAPIKey))
+
+	client := mackerel.NewClient(config.MackerelAPIKey)
+	var _ = client // avoid compile error
 }
 
 func parseFlags() *Config {
