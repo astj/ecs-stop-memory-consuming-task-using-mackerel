@@ -104,12 +104,6 @@ func parseFlags() *Config {
 		os.Exit(1)
 	}
 
-	if config.AWSRegion == "" {
-		fmt.Fprintf(os.Stderr, "Error: AWS region is required\n")
-		flag.Usage()
-		os.Exit(1)
-	}
-
 	return config
 }
 
