@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	DryRun          bool
+	Verbose         bool
 	MackerelService string
 	MackerelRole    string
 	MackerelMetric  string
@@ -31,6 +32,7 @@ func main() {
 	fmt.Printf("  Mackerel API Key: %s\n", maskAPIKey(config.MackerelAPIKey))
 
 	client := mackerel.NewClient(config.MackerelAPIKey)
+	client.Verbose = config.Verbose
 
 	arn, err := FindMostMemoryConsumingTaskArn(client, config.MackerelService, config.MackerelRole, config.MackerelMetric)
 	if err != nil {
@@ -52,6 +54,7 @@ func parseFlags() *Config {
 	flag.StringVar(&config.AWSProfile, "aws-profile", "", "AWS profile name")
 	flag.StringVar(&config.AWSRegion, "aws-region", "", "AWS region")
 	flag.StringVar(&config.MackerelAPIKey, "mackerel-api-key", "", "Mackerel API key")
+	flag.BoolVar(&config.Verbose, "verbose", false, "Enable verbose output")
 
 	flag.Parse()
 
