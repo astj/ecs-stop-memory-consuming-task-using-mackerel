@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 )
 
 func StopEcsTask(ecsClient *ecs.Client, arn string, dryRun bool) error {
 	if dryRun {
-		fmt.Printf("Dry run: would stop task with ARN %s\n", arn)
+		log.Printf("Dry run: would stop task with ARN %s", arn)
 		return nil
 	}
 
@@ -22,6 +23,6 @@ func StopEcsTask(ecsClient *ecs.Client, arn string, dryRun bool) error {
 		return fmt.Errorf("failed to stop task %s: %w", arn, err)
 	}
 
-	fmt.Printf("Stopped task with ARN %s\n", arn)
+	log.Printf("Stopped task with ARN %s", arn)
 	return nil
 }

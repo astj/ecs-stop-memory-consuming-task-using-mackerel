@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -39,22 +38,20 @@ func main() {
 
 	arn, err := FindMostMemoryConsumingTaskArn(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error finding most memory consuming task: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Error finding most memory consuming task: %v", err)
 	}
 
 	if arn == "" {
-		fmt.Println("No memory consuming task found")
+		log.Println("No memory consuming task found")
 		os.Exit(0)
 	}
 
-	fmt.Println("Most memory consuming task ARN:", arn)
+	log.Println("Most memory consuming task ARN:", arn)
 
 	if err := StopEcsTask(ecsClient, arn, c.DryRun); err != nil {
-		fmt.Fprintf(os.Stderr, "Error stopping task: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Error stopping task: %v", err)
 	}
-	fmt.Println("Task stopped successfully")
+	log.Println("Task stopped successfully")
 }
 
 func parseFlags() *Config {
@@ -102,27 +99,19 @@ func parseFlags() *Config {
 	}
 
 	if config.MackerelService == "" {
-		fmt.Fprintf(os.Stderr, "Error: Mackerel service is required\n")
-		flag.Usage()
-		os.Exit(1)
+		log.Fatalf("Error: Mackerel service is required")
 	}
 
 	if config.MackerelRole == "" {
-		fmt.Fprintf(os.Stderr, "Error: Mackerel role is required\n")
-		flag.Usage()
-		os.Exit(1)
+		log.Fatalf("Error: Mackerel role is required")
 	}
 
 	if config.MackerelMetric == "" {
-		fmt.Fprintf(os.Stderr, "Error: Mackerel metric name is required\n")
-		flag.Usage()
-		os.Exit(1)
+		log.Fatalf("Error: Mackerel metric name is required")
 	}
 
 	if config.MackerelAPIKey == "" {
-		fmt.Fprintf(os.Stderr, "Error: Mackerel API key is required\n")
-		flag.Usage()
-		os.Exit(1)
+		log.Fatalf("Error: Mackerel API key is required")
 	}
 
 	return config
