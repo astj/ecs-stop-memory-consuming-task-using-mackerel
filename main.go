@@ -49,7 +49,7 @@ func main() {
 	if err := StopEcsTask(ecsClient, task, c.DryRun); err != nil {
 		log.Fatalf("Error stopping task: %v", err)
 	}
-	log.Println("Task stopped successfully")
+	log.Println("completed")
 }
 
 func parseFlags() *Config {

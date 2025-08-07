@@ -24,6 +24,6 @@ func StopEcsTask(ecsClient *ecs.Client, task *Task, dryRun bool) error {
 		return fmt.Errorf("failed to stop task %s: %w", task.TaskArn, err)
 	}
 
-	log.Printf("Stopped task with ARN %s", task.TaskArn)
+	log.Printf("sent StopTask request for task %s", task.TaskArn)
 	return nil
 }
