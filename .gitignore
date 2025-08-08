@@ -31,3 +31,5 @@ go.work.sum
 # .idea/
 # .vscode/
 /ecs-stop-memory-consuming-task-using-mackerel
+# Added by goreleaser init:
+dist/
