@@ -122,7 +122,7 @@ func TestFindMostMemoryConsumingTaskFromData(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := FindMostMemoryConsumingTaskFromData(tt.hosts, tt.metrics)
+			result := FindMostMemoryConsumingTaskFromData(tt.hosts, tt.metrics, 0.0)
 
 			if tt.expected == nil {
 				if result != nil {
@@ -154,7 +154,7 @@ func TestFindMostMemoryConsumingTaskFromData_EdgeCases(t *testing.T) {
 			{HostID: "host2", Value: 10.0},
 		}
 
-		result := FindMostMemoryConsumingTaskFromData(hosts, metrics)
+		result := FindMostMemoryConsumingTaskFromData(hosts, metrics, 0.0)
 		if result == nil {
 			t.Fatal("expected non-nil result")
 		}
@@ -168,4 +168,126 @@ func TestFindMostMemoryConsumingTaskFromData_EdgeCases(t *testing.T) {
 			t.Errorf("unexpected task ARN: %s", result.TaskArn)
 		}
 	})
+}
+
+func TestFindMostMemoryConsumingTaskFromData_WithThreshold(t *testing.T) {
+	tests := []struct {
+		name      string
+		hosts     []HostData
+		metrics   []MetricData
+		threshold float64
+		expected  *Task
+	}{
+		{
+			name: "highest value below threshold should return nil",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+				{ID: "host2", TaskArn: "task2", ClusterArn: "cluster2"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: 10.0},
+				{HostID: "host2", Value: 15.0}, // highest but below threshold
+			},
+			threshold: 20.0,
+			expected:  nil,
+		},
+		{
+			name: "highest value exactly at threshold should return task",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+				{ID: "host2", TaskArn: "task2", ClusterArn: "cluster2"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: 10.0},
+				{HostID: "host2", Value: 20.0}, // exactly at threshold
+			},
+			threshold: 20.0,
+			expected: &Task{
+				TaskArn:    "task2",
+				ClusterArn: "cluster2",
+			},
+		},
+		{
+			name: "highest value above threshold should return task",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+				{ID: "host2", TaskArn: "task2", ClusterArn: "cluster2"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: 10.0},
+				{HostID: "host2", Value: 25.0}, // above threshold
+			},
+			threshold: 20.0,
+			expected: &Task{
+				TaskArn:    "task2",
+				ClusterArn: "cluster2",
+			},
+		},
+		{
+			name: "zero threshold should behave like no threshold",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+				{ID: "host2", TaskArn: "task2", ClusterArn: "cluster2"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: 0.1},  // very small value
+				{HostID: "host2", Value: 0.01}, // even smaller
+			},
+			threshold: 0.0,
+			expected: &Task{
+				TaskArn:    "task1",
+				ClusterArn: "cluster1",
+			},
+		},
+		{
+			name: "NaN values with threshold should return nil",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: math.NaN()},
+			},
+			threshold: 10.0,
+			expected: &Task{
+				TaskArn:    "task1",
+				ClusterArn: "cluster1",
+			}, // NaN should bypass threshold check
+		},
+		{
+			name: "negative threshold should work",
+			hosts: []HostData{
+				{ID: "host1", TaskArn: "task1", ClusterArn: "cluster1"},
+			},
+			metrics: []MetricData{
+				{HostID: "host1", Value: 5.0},
+			},
+			threshold: -1.0,
+			expected: &Task{
+				TaskArn:    "task1",
+				ClusterArn: "cluster1",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FindMostMemoryConsumingTaskFromData(tt.hosts, tt.metrics, tt.threshold)
+
+			if tt.expected == nil {
+				if result != nil {
+					t.Errorf("expected nil, got %+v", result)
+				}
+				return
+			}
+
+			if result == nil {
+				t.Errorf("expected %+v, got nil", tt.expected)
+				return
+			}
+
+			if result.TaskArn != tt.expected.TaskArn || result.ClusterArn != tt.expected.ClusterArn {
+				t.Errorf("expected %+v, got %+v", tt.expected, result)
+			}
+		})
+	}
 }

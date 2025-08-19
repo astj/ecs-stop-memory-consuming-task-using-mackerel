@@ -26,7 +26,7 @@ type MetricData struct {
 
 // FindMostMemoryConsumingTaskFromData finds the task with highest memory consumption from given data
 // This function is pure and can be easily unit tested
-func FindMostMemoryConsumingTaskFromData(hosts []HostData, metrics []MetricData) *Task {
+func FindMostMemoryConsumingTaskFromData(hosts []HostData, metrics []MetricData, threshold float64) *Task {
 	if len(hosts) == 0 || len(metrics) == 0 {
 		return nil
 	}
@@ -49,6 +49,10 @@ func FindMostMemoryConsumingTaskFromData(hosts []HostData, metrics []MetricData)
 
 	// Return the task for the host with largest value
 	if host, exists := hostByID[largestValueHostID]; exists {
+		// Check if the largest value meets the threshold requirement
+		if !math.IsNaN(largestValue) && largestValue < threshold {
+			return nil
+		}
 		return &Task{
 			TaskArn:    host.TaskArn,
 			ClusterArn: host.ClusterArn,
@@ -59,7 +63,7 @@ func FindMostMemoryConsumingTaskFromData(hosts []HostData, metrics []MetricData)
 }
 
 // FindMostMemoryConsumingTask finds the ECS task with highest memory consumption using Mackerel API
-func FindMostMemoryConsumingTask(client *mackerel.Client, service string, role string, metricName string) (*Task, error) {
+func FindMostMemoryConsumingTask(client *mackerel.Client, service string, role string, metricName string, threshold float64) (*Task, error) {
 	hosts, err := client.FindHosts(&mackerel.FindHostsParam{
 		Service: service,
 		Roles:   []string{role},
@@ -114,5 +118,5 @@ func FindMostMemoryConsumingTask(client *mackerel.Client, service string, role s
 	}
 
 	// Use the pure logic function to find the result
-	return FindMostMemoryConsumingTaskFromData(hostData, metricData), nil
+	return FindMostMemoryConsumingTaskFromData(hostData, metricData, threshold), nil
 }

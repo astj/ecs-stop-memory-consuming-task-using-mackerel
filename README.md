@@ -4,6 +4,13 @@ A command-line tool that identifies and terminates the ECS task with the highest
 
 The primary use case is for ECS Services that gradually accumulate memory usage over time (moderate memory leaks). By running this tool periodically (e.g., daily), you can prevent memory exhaustion and maintain service stability.
 
+## Key Features
+
+- **Intelligent task selection**: Identifies the task with highest memory consumption across your service
+- **Threshold protection**: Optional threshold setting prevents stopping tasks that aren't consuming much memory
+- **Safe operation**: Dry-run mode for testing without actual task termination
+- **Flexible configuration**: Support for both command-line flags and environment variables
+
 ## Prerequisites
 
 - The target ECS task must have `mackerel-container-agent` attached as a sidecar container.
@@ -84,8 +91,22 @@ export MACKEREL_ROLE="your-role"
 export MACKEREL_METRIC="container.memory.app.usage"
 export MACKEREL_APIKEY="your-api-key"
 export DRY_RUN="true"  # Optional: enable dry-run mode
+export THRESHOLD="80.0"  # Optional: only stop tasks using more than 80% memory
 
 ./ecs-stop-memory-task
+```
+
+### Using Threshold to Prevent Stopping Low-Memory Tasks
+
+Stop tasks only if they consume more than 80% memory:
+
+```bash
+./ecs-stop-memory-task \
+  -threshold 80.0 \
+  -mackerel-service "your-service" \
+  -mackerel-role "your-role" \
+  -mackerel-metric "container.memory.app.usage" \
+  -mackerel-api-key "your-api-key"
 ```
 
 ### Command-line Options
@@ -96,6 +117,7 @@ export DRY_RUN="true"  # Optional: enable dry-run mode
 | `-mackerel-role` | `MACKEREL_ROLE` | Yes | Mackerel role name |
 | `-mackerel-metric` | `MACKEREL_METRIC` | Yes | Memory metric name (e.g., `container.memory.app.usage`) |
 | `-mackerel-api-key` | `MACKEREL_APIKEY` | Yes | Mackerel API key |
+| `-threshold` | `THRESHOLD` | No | Minimum memory consumption threshold to stop tasks (default: 0.0, no threshold) |
 | `-dry-run` | `DRY_RUN` | No | Dry run mode (no actual task termination) |
 | `-verbose` | - | No | Enable verbose output |
 

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -18,6 +19,7 @@ type Config struct {
 	MackerelRole    string
 	MackerelMetric  string
 	MackerelAPIKey  string
+	Threshold       float64
 }
 
 func main() {
@@ -33,13 +35,17 @@ func main() {
 	}
 	ecsClient := ecs.NewFromConfig(awsConfig)
 
-	task, err := FindMostMemoryConsumingTask(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric)
+	task, err := FindMostMemoryConsumingTask(mackerelClient, c.MackerelService, c.MackerelRole, c.MackerelMetric, c.Threshold)
 	if err != nil {
 		log.Fatalf("Error finding most memory consuming task: %v", err)
 	}
 
 	if task == nil {
-		log.Println("No memory consuming task found")
+		if c.Threshold > 0.0 {
+			log.Printf("No task found that meets the memory threshold of %.2f", c.Threshold)
+		} else {
+			log.Println("No memory consuming task found")
+		}
 		os.Exit(0)
 	}
 
@@ -61,6 +67,7 @@ func parseFlags() *Config {
 	flag.StringVar(&config.MackerelMetric, "mackerel-metric", "", "Mackerel metric name for memory consumption like `container.memory.${target container name}.usage`")
 	flag.StringVar(&config.MackerelAPIKey, "mackerel-api-key", "", "Mackerel API key")
 	flag.BoolVar(&config.Verbose, "verbose", false, "Enable verbose output")
+	flag.Float64Var(&config.Threshold, "threshold", 0.0, "Minimum memory consumption threshold to stop tasks (default: 0.0, no threshold)")
 
 	flag.Parse()
 
@@ -84,6 +91,12 @@ func parseFlags() *Config {
 
 	if config.MackerelAPIKey == "" {
 		config.MackerelAPIKey = os.Getenv("MACKEREL_APIKEY")
+	}
+
+	if thresholdStr := os.Getenv("THRESHOLD"); thresholdStr != "" {
+		if threshold, err := strconv.ParseFloat(thresholdStr, 64); err == nil {
+			config.Threshold = threshold
+		}
 	}
 
 	if config.MackerelService == "" {
