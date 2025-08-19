@@ -1,0 +1,22 @@
+# .github/workflows/tagpr.yml
+name: tagpr
+on:
+  push:
+    branches: ["main"]
+jobs:
+  tagpr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/create-github-app-token@v2
+      id: app-token
+      with:
+        # required
+        app-id: "1805202" # https://github.com/settings/apps/tagpr-pat
+        private-key: ${{ secrets.TAGPR_GITHUB_APP_SECRET }}
+    - uses: actions/checkout@v5
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        persist-credentials: false
+    - uses: Songmu/tagpr@v1
+      env:
+        GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
